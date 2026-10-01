@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Planning Assumptions Governance</title>
+  <style>
+    body { font-family: Segoe UI, Arial, sans-serif; margin: 24px; }
+    .grid { display: grid; grid-template-columns: repeat(2, minmax(280px, 1fr)); gap: 12px; }
+    input, textarea, select { width: 100%; padding: 8px; box-sizing: border-box; }
+    textarea { height: 80px; }
+    button { margin-top: 10px; padding: 10px 14px; }
+    pre { background: #111; color: #eee; padding: 12px; white-space: pre-wrap; }
+  </style>
+</head>
+<body>
+  <h1>Planning Assumptions Governance</h1>
+  <p>Versioned assumptions with approval flow and audit visibility.</p>
+
+  <div class="grid">
+    <input id="name" value="Inflation" placeholder="Assumption Name" />
+    <input id="value" value="3.0%" placeholder="Assumption Value" />
+    <input id="createdBy" value="advisor.a" placeholder="Created By" />
+    <input id="approvedBy" value="supervisor.b" placeholder="Approved By" />
+  </div>
+
+  <h3>Notes</h3>
+  <textarea id="notes">Annual planning baseline for long-range projections.</textarea>
+
+  <button id="submitBtn">Submit Assumption</button>
+  <button id="listBtn">List Assumptions</button>
+  <button id="auditBtn">View Audit</button>
+
+  <h3>Latest Output</h3>
+  <pre id="output">Waiting...</pre>
+
+  <script>
+    let latestId = null;
+
+    document.getElementById('submitBtn').addEventListener('click', async () => {
+      const payload = {
+        name: document.getElementById('name').value,
+        value: document.getElementById('value').value,
+        notes: document.getElementById('notes').value,
+        createdBy: document.getElementById('createdBy').value
+      };
+
+      const res = await fetch('/api/governance/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      latestId = data.id;
+      document.getElementById('output').textContent = JSON.stringify(data, null, 2);
+
+      // auto-approve for quick MVP flow demo
+      const approvePayload = {
+        assumptionId: latestId,
+        approvedBy: document.getElementById('approvedBy').value,
+        approve: true
+      };
+      await fetch('/api/governance/approve', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(approvePayload)
+      });
+    });
+
+    document.getElementById('listBtn').addEventListener('click', async () => {
+      const res = await fetch('/api/governance/assumptions');
+      const data = await res.json();
+      document.getElementById('output').textContent = JSON.stringify(data, null, 2);
+    });
+
+    document.getElementById('auditBtn').addEventListener('click', async () => {
+      const res = await fetch('/api/governance/audit');
+      const data = await res.json();
+      document.getElementById('output').textContent = JSON.stringify(data, null, 2);
+    });
+  </script>
+</body>
+</html>
