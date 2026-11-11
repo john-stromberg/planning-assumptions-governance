@@ -1,3 +1,8 @@
+> **Moved:** This project is maintained in [advisor-platform/projects/planning-assumptions-governance](https://github.com/john-stromberg/advisor-platform/tree/main/projects/planning-assumptions-governance).
+> This repository is retained as a historical snapshot.
+
+---
+
 # Planning Assumptions Governance
 
 Workflow-oriented advisor tool for versioned planning assumptions, approvals, and audit trail review.
